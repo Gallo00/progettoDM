@@ -1,0 +1,18 @@
+PROGETTO DATA MINING
+***CLUSTERING NON ESCLUSIVO***
+
+parte più teorica
+-logica dei fuzzy sets
+-introdurre il fuzzy clustering detto anche soft clustering
+-confronto con hard clustering
+-introdurre la versione "soft" del K-means detto fuzzy C-means FCM
+-parlare un pò delle varianti senza entrare nei dettagli
+
+parte implementativa
+-scegliere un dataset
+-fare eventualmente pulizia dei dati (usarne solo una parte per semplicità
+e/o usare solo un certo numero di features)
+-applicare il clustering 
+-confronto tra più varianti 
+-discutere i risultati con eventualmente dei grafici che rendano meglio i concetti
+-validare i risultati

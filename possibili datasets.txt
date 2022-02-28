@@ -1,0 +1,10 @@
+
+https://www.kaggle.com/rohan0301/unsupervised-learning-on-country-data 167 r, 10 c , 3 cluster. Nazioni e loro caratteristiche economiche e sanitarie
+
+https://www.kaggle.com/harrywang/wine-dataset-for-clustering 170 r, 13 c, 3 clusters. 3 tipi di vini
+
+https://www.kaggle.com/rainbowgirl/clustering-categorical-peoples-interests
+6000 r , 219 c , 4 clusters. Gli attributi sono booleani ad eccezione di uno ridondante che indica quanti true ci sono.  Interessi persone
+
+https://www.kaggle.com/arjunbhasin2013/ccdata carte di credito
+circa 9000 r,18 c , ? clusters
