@@ -6,7 +6,7 @@
 #la funzione è molto banale, è una serie di if per verificare 
 #quale algoritmo è qualitativamente(si vede con il coeff di Silhouette)
 #il migliore
-miglior.oggetto.fclust <- function(df_norm,res.fkm){
+miglior.oggetto.fclust.SILF <- function(df,res.fkm,k){
   input_ok <- 0
   if(class(res.fkm) == "fclust")
   {
@@ -20,6 +20,10 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   {
     cat("L'oggetto in input non è un oggetto fclust o non è FKM\n")
     stop()
+  }
+  if(missing(k))
+  {
+    k=2:6
   }
   
   #prendo l'istante corrente per poi successivamente capire quale è
@@ -37,7 +41,16 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   cat("Eseguito 7%\n")
   
   #calcolo clustering con regolarizzazione dell'entropia
-  res.fkm.ent <- FKM.ent(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione potrebbe generare dei NaN
+  #nella matrice U se i dati non sono standardizzati
+  #Prima eseguiamo il clustering ad eseguire il clustering senza standardizzazione
+  #Se c'è errore, standardizziamo mettendo stand = 1
+  res.fkm.ent <- FKM.ent(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.ent <- FKM.ent(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+              {cat("Metodi ent e pf.noise eseguiti con stand=1\n")})
+  #Avvisiamo l'utente che i metodi ent sono eseguiti con standardizzazione
   res.fkm.ent.SilF <- Fclust.index(res.fkm.ent,index="SIL.F",alpha = 1)
   
   if(res.fkm.ent.SilF > fclust.output.SilF){
@@ -51,7 +64,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione noise points
-  res.fkm.noise <- FKM.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.noise <- FKM.noise(df,k=k,index="SIL.F",alpha=1)
   res.fkm.noise.SilF <- Fclust.index(res.fkm.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.noise.SilF > fclust.output.SilF){
@@ -65,7 +78,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione noise points e regolarizzazione entropia
-  res.fkm.ent.noise <- FKM.ent.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1
+  res.fkm.ent.noise <- FKM.ent.noise(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.ent.noise <- FKM.ent.noise(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.ent.noise.SilF <- Fclust.index(res.fkm.ent.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.ent.noise.SilF > fclust.output.SilF){
@@ -79,7 +99,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione Gustafson Kessel
-  res.fkm.gk <- FKM.gk(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.gk <- FKM.gk(df,k=k,index="SIL.F",alpha=1)
   res.fkm.gk.SilF <- Fclust.index(res.fkm.gk,index="SIL.F",alpha = 1)
   
   if(res.fkm.gk.SilF > fclust.output.SilF){
@@ -94,7 +114,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
    
   #calcolo clustering con estensione Gustafson Kessel e regolarizzazione
   #entropia
-  res.fkm.gk.ent <- FKM.gk.ent(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1
+  res.fkm.gk.ent <- FKM.gk.ent(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.gk.ent <- FKM.gk.ent(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.gk.ent.SilF <- Fclust.index(res.fkm.gk.ent,index="SIL.F",alpha = 1)
   
   if(res.fkm.gk.ent.SilF > fclust.output.SilF){
@@ -108,7 +135,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione Gustafson Kessel e estensione noise points
-  res.fkm.gk.noise <- FKM.gk.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.gk.noise <- FKM.gk.noise(df,k=k,index="SIL.F",alpha=1)
   res.fkm.gk.noise.SilF <- Fclust.index(res.fkm.gk.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.gk.noise.SilF > fclust.output.SilF){
@@ -123,7 +150,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
    
   #calcolo clustering con estensione Gustafson Kessel e regolarizzazione
   #entropia e estensione noise points
-  res.fkm.gk.ent.noise <- FKM.gk.ent.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1
+  res.fkm.gk.ent.noise <- FKM.gk.ent.noise(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.gk.ent.noise <- FKM.gk.ent.noise(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.gk.ent.noise.SilF <- Fclust.index(res.fkm.gk.ent.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.gk.ent.noise.SilF > fclust.output.SilF){
@@ -136,7 +170,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione Gustafson Kessel e Babuska
-  res.fkm.gkb <- FKM.gkb(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.gkb <- FKM.gkb(df,k=k,index="SIL.F",alpha=1)
   res.fkm.gkb.SilF <- Fclust.index(res.fkm.gkb,index="SIL.F",alpha = 1)
   
   if(res.fkm.gkb.SilF > fclust.output.SilF){
@@ -150,7 +184,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
    
   #calcolo clustering con estensione Gustafson Kessel e Babuska e regolarizzazione
   #entropia
-  res.fkm.gkb.ent <- FKM.gkb.ent(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1
+  res.fkm.gkb.ent <- FKM.gkb.ent(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.gkb.ent <- FKM.gkb.ent(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.gkb.ent.SilF <- Fclust.index(res.fkm.gkb.ent,index="SIL.F",alpha = 1)
   
   if(res.fkm.gkb.ent.SilF > fclust.output.SilF){
@@ -164,7 +205,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con estensione Gustafson Kessel e Babuska e estensione noise points
-  res.fkm.gkb.noise <- FKM.gkb.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.gkb.noise <- FKM.gkb.noise(df,k=k,index="SIL.F",alpha=1)
   res.fkm.gkb.noise.SilF <- Fclust.index(res.fkm.gkb.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.gkb.noise.SilF > fclust.output.SilF){
@@ -179,7 +220,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
    
   #calcolo clustering con estensione Gustafson Kessel e Babuska e regolarizzazione
   #entropia e estensione noise points
-  res.fkm.gkb.ent.noise <- FKM.gkb.ent.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1
+  res.fkm.gkb.ent.noise <- FKM.gkb.ent.noise(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.gkb.ent.noise <- FKM.gkb.ent.noise(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.gkb.ent.noise.SilF <- Fclust.index(res.fkm.gkb.ent.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.gkb.ent.noise.SilF > fclust.output.SilF){
@@ -193,7 +241,7 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   
    
   #calcolo clustering con fuzzifier polinomiale
-  res.fkm.pf <- FKM.pf(df_norm,k=2:6,index="SIL.F",alpha=1)
+  res.fkm.pf <- FKM.pf(df,k=k,index="SIL.F",alpha=1)
   res.fkm.pf.SilF <- Fclust.index(res.fkm.pf,index="SIL.F",alpha = 1)
   
   if(res.fkm.pf.SilF > fclust.output.SilF){
@@ -205,7 +253,14 @@ miglior.oggetto.fclust <- function(df_norm,res.fkm){
   cat("Eseguito 91%\n")
   
   #calcolo clustering con fuzzifier polinomiale e estensione noise point
-  res.fkm.pf.noise <- FKM.pf.noise(df_norm,k=2:6,index="SIL.F",alpha=1)
+  #l'implementazione di questa funzione esige che i dati siano standardizzati,
+  #mettiamo stand = 1, non da errore ma ogni punto risulterebbe un noise point
+  res.fkm.pf.noise <- FKM.pf.noise(df,k=k,stand=1,index="SIL.F",alpha=1)
+  
+  tryCatch( {res.fkm.pf.noise <- FKM.pf.noise(df,k=k,index="SIL.F",alpha=1) }
+            , error = function(e) 
+            {})
+  
   res.fkm.pf.noise.SilF <- Fclust.index(res.fkm.pf.noise,index="SIL.F",alpha = 1)
   
   if(res.fkm.pf.noise.SilF > fclust.output.SilF){

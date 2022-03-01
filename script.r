@@ -11,30 +11,57 @@ library(factoextra)
 library(cluster)
 #Carichiamo il dataset, conservato in csv, lo "convertiamo" in dataframe
 
-dati_csv <- read.csv("CC_GENERAL.csv")
-CC_df <- data.frame(dati_csv)
+dati_csv <- read.csv("pokemon.csv")
+df <- data.frame(dati_csv)
 rm(dati_csv)
-print(CC_df)
-#Nel dataframe è presente una colonna che contiene degli id, ovviamente 
+print(df)
+
+
+#Se nel dataframe è presente una colonna(o più) che contiene degli id, ovviamente 
 # la scartiamo
-CC_df <- CC_df[,-1]
+rimuovi_colonne <- function(df)
+{
 
-#il dataset è abbastanza grande, scartiamo per semplicità le righe
+  #rimuovere tutte le colonne non numeric
+  nums <- unlist(lapply(df, is.numeric))
+  df <- df[ , nums]
+  print(colnames(df))
+  #tramite input da tastiera chiedere all'utente quali altre colonne vuole rimuovere
+  while((col <- readline(prompt="Inserisci nome colonna da eliminare(stop_remove per fermarsi): "))!="stop_remove")
+  {
+    df <- df[, !(names(df) %in% col)]
+  }
+  
+  return(df)
+}
+
+df <- rimuovi_colonne(df)
+
+#il dataset potrebbe avere valori mancanti 
+#rappresentati con NA, scartiamo per semplicità le righe
 #contenenti valori NA
-#il numero di righe scartate è poco meno di 200 su 9000, è un buon compromesso
-CC_df <- na.omit(CC_df)
+df <- na.omit(df)
 
-#usiamo un numero inferiore di tuple per semplicità
-perc <- 0.10 #nel dataframe ci sono circa 8600 tuple, decidiamo la percentuale
-#che vogliamo usare
-num_tuple <- round(perc*nrow(CC_df))
-set.seed(111222333)
-pos_rand <- sample(1:nrow(CC_df),num_tuple)
+#usiamo un numero inferiore di tuple per semplicità se il dataset è grande
+riduzione_df <- function(df)
+{
+  perc <- readline(prompt="Inserisci un numero da 0 a 1: ")
+  perc <- as.double(perc)
+  if(perc < 0.0 | perc > 1.0)
+  {
+    print("Numero non compreso tra 0 e 1, la percentuale è stata impostata a 1")
+    return(df)
+  }
+  #decidiamo la percentuale di righe che vogliamo usare
+  num_tuple <- round(perc*nrow(df))
+  set.seed(111222333)
+  pos_rand <- sample(1:nrow(df),num_tuple)
+  
+  return(df[pos_rand,])
+}
 
-CC_df <- CC_df[pos_rand,]
-rm(perc)
-rm(num_tuple)
-rm(pos_rand)
+df <- riduzione_df(df)
+
 #features selection
 #Per semplificare il modello scartiamo le features che non sono importanti
 #ovvero non aiutano nella distinzione degli oggetti
@@ -43,7 +70,7 @@ rm(pos_rand)
 #Sfrutteremo il metodo findCorrelation per trovare le variabili
 #con forti gradi di correlazione(in genere con forti si intende con
 #grado maggiore o uguale 0.75)
-corr <- cor(CC_df[,1:17])
+corr <- cor(df[,1:ncol(df)])
 print(corr)
 variabili.molto.correlate <- findCorrelation(corr,cutoff = 0.75)
 str <- paste("Le seguenti variabili sono molto correlate alle altre, dunque le scartiamo \n",toString(variabili.molto.correlate))
@@ -52,30 +79,22 @@ cat(str)
 #con questo semplice for troviamo i nomi delle colonne da scartare
 var <- c()
 for(i in 1:length(variabili.molto.correlate)) {
-  var <- c(var,colnames(CC_df)[variabili.molto.correlate[i]])
+  var <- c(var,colnames(df)[variabili.molto.correlate[i]])
 }
 
-#questa operazione permette di rimuovere da CC_df le colonne
+#questa operazione permette di rimuovere da df le colonne
 #con i nomi trovati nel for
-CC_df <- CC_df[, !(names(CC_df) %in% var)]
+df <- df[, !(names(df) %in% var)]
 
 rm(str)
 rm(i)
 rm(var)
 rm(variabili.molto.correlate)
 rm(corr)
-#definiamo la funzione di normalizzazione min max
-min_max_norm <- function(x) {
-  (x - min(x)) / (max(x) - min(x))
-}
 
-#applichiamo la min max sui nostri dati
-CC_df_norm <- as.data.frame(lapply(CC_df[1:ncol(CC_df)], min_max_norm))
-rm(min_max_norm)
-rm(CC_df)
 
 gc()
-res.fkm <- FKM(CC_df_norm,k=2:6,index="SIL.F",alpha=1)
+res.fkm <- FKM(df,k=3,index="SIL.F",alpha=1)
 #stampiamo il coeff di fuzzy Silhouette
 Fclust.index(res.fkm,index="SIL.F",alpha = 1)
 #Inseriamo k=2:6,index="SIL.F",alpha=1 anche se non è necessario
@@ -122,10 +141,11 @@ rm(str)
 #estensioni per valutare quale fra esse si comporti meglio sul dataset.
 #Per il confronto useremo l'indice di Silhouette fuzzy
 
-source("miglior_oggetto_fclust.R")
+source("miglior_oggetto_fclust_SILF.R")
 gc()
-miglior_clustering <- miglior.oggetto.fclust(CC_df_norm,res.fkm)
+miglior_clustering_SILF <- miglior.oggetto.fclust.SILF(df,res.fkm)
 
 info.principali.fclust(miglior_clustering)
+plot(miglior_clustering_SILF,pca=TRUE)
 
 
