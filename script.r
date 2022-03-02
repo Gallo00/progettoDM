@@ -11,7 +11,8 @@ library(factoextra)
 library(cluster)
 #Carichiamo il dataset, conservato in csv, lo "convertiamo" in dataframe
 
-dati_csv <- read.csv("pokemon.csv")
+dati_csv <- read.csv("wine.csv")
+#dati_csv <- read.csv("wine.csv")
 df <- data.frame(dati_csv)
 rm(dati_csv)
 print(df)
@@ -25,18 +26,22 @@ rimuovi_colonne <- function(df)
   #rimuovere tutte le colonne non numeric
   nums <- unlist(lapply(df, is.numeric))
   df <- df[ , nums]
-  print(colnames(df))
-  #tramite input da tastiera chiedere all'utente quali altre colonne vuole rimuovere
-  while((col <- readline(prompt="Inserisci nome colonna da eliminare(stop_remove per fermarsi): "))!="stop_remove")
+  cat("Ho rimosso le colonne NON numeric\n")
+  if(ncol(df) < 20) #ovviamente se le colonne sono troppe non ha senso eseguire questo if
   {
-    df <- df[, !(names(df) %in% col)]
+    cat("Rimangono le seguenti colonne:\n")
+    print(colnames(df))
+    #tramite input da tastiera chiedere all'utente quali altre colonne vuole rimuovere
+    while((col <- readline(prompt="Inserisci nome colonna da eliminare(stop_remove per fermarsi): "))!="stop_remove")
+    {
+      df <- df[, !(names(df) %in% col)]
+    }
   }
-  
   return(df)
 }
 
 df <- rimuovi_colonne(df)
-
+rm(rimuovi_colonne)
 #il dataset potrebbe avere valori mancanti 
 #rappresentati con NA, scartiamo per semplicità le righe
 #contenenti valori NA
@@ -61,7 +66,7 @@ riduzione_df <- function(df)
 }
 
 df <- riduzione_df(df)
-
+rm(riduzione_df)
 #features selection
 #Per semplificare il modello scartiamo le features che non sono importanti
 #ovvero non aiutano nella distinzione degli oggetti
@@ -73,22 +78,31 @@ df <- riduzione_df(df)
 corr <- cor(df[,1:ncol(df)])
 print(corr)
 variabili.molto.correlate <- findCorrelation(corr,cutoff = 0.75)
-str <- paste("Le seguenti variabili sono molto correlate alle altre, dunque le scartiamo \n",toString(variabili.molto.correlate))
-cat(str)
-
-#con questo semplice for troviamo i nomi delle colonne da scartare
-var <- c()
-for(i in 1:length(variabili.molto.correlate)) {
-  var <- c(var,colnames(df)[variabili.molto.correlate[i]])
+if(length(variabili.molto.correlate) > 0 )
+{
+  str <- paste("Le seguenti variabili sono molto correlate alle altre, dunque le scartiamo \n",toString(variabili.molto.correlate))
+  cat(str)
+  
+  #con questo semplice for troviamo i nomi delle colonne da scartare
+  var <- c()
+  for(i in 1:length(variabili.molto.correlate)) {
+    var <- c(var,colnames(df)[variabili.molto.correlate[i]])
+  }
+  
+  
+  #questa operazione permette di rimuovere da df le colonne
+  #con i nomi trovati nel for
+  df <- df[, !(names(df) %in% var)]
+  
+  rm(str)
+  rm(var)
+  
+} else{
+  cat("Nessuna variabile scartata")
 }
 
-#questa operazione permette di rimuovere da df le colonne
-#con i nomi trovati nel for
-df <- df[, !(names(df) %in% var)]
 
-rm(str)
 rm(i)
-rm(var)
 rm(variabili.molto.correlate)
 rm(corr)
 
@@ -145,7 +159,13 @@ source("miglior_oggetto_fclust_SILF.R")
 gc()
 miglior_clustering_SILF <- miglior.oggetto.fclust.SILF(df,res.fkm)
 
-info.principali.fclust(miglior_clustering)
+source("info_principali_fclust.R")
+info.principali.fclust(miglior_clustering_SILF)
 plot(miglior_clustering_SILF,pca=TRUE)
 
+### VALIDAZIONE  ###
+
+source("validazione_fclust_SILF.R")
+#passando print = FALSE si disattivano le stampe(tranne il coeff. di fuzzy sil.)
+validazione.fclust.SILF(miglior_clustering_SILF,print = FALSE)
 
