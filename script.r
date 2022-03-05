@@ -67,14 +67,17 @@ riduzione_df <- function(df)
 
 df <- riduzione_df(df)
 rm(riduzione_df)
+
+
 #features selection
 #Per semplificare il modello scartiamo le features che non sono importanti
 #ovvero non aiutano nella distinzione degli oggetti
 
-#Quello che possiamo fare è scartare features ridondanti
+#Potremmo scartare features ridondanti
 #Sfrutteremo il metodo findCorrelation per trovare le variabili
 #con forti gradi di correlazione(in genere con forti si intende con
 #grado maggiore o uguale 0.75)
+#https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
 corr <- cor(df[,1:ncol(df)])
 print(corr)
 variabili.molto.correlate <- findCorrelation(corr,cutoff = 0.75)
@@ -167,5 +170,5 @@ plot(miglior_clustering_SILF,pca=TRUE)
 
 source("validazione_fclust_SILF.R")
 #passando print = FALSE si disattivano le stampe(tranne il coeff. di fuzzy sil.)
-validazione.fclust.SILF(miglior_clustering_SILF,print = FALSE)
+out <- validazione.fclust.SILF(miglior_clustering_SILF,print = FALSE)
 

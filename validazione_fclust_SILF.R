@@ -1,6 +1,6 @@
 ### validazione oggetto fclust
 
-#passando print = FALSE si disattivano le stampe(ad eccezione del coeff si SIL.)
+#passando print = FALSE si disattivano le stampe(ad eccezione del coeff di fuzzy SIL.)
 validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
 {
   if(class(fclust.obj) != "fclust")
@@ -14,7 +14,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     cat("Più è vicino ad 1 e meglio è, un valore uguale a 0 significa che l'oggetto\n")
     cat("è a metà trai cluster, cerchiamo valori maggiori di 0\n") 
     
-    cat("In genere un valore maggiore o uguale a 0.5 è considerato molto buono\n\n")
+    cat("In genere un valore maggiore o uguale a 0.5 è considerato abbastanza buono\n\n")
   }
   
   SILF <- Fclust.index(fclust.obj,index="SIL.F",alpha = 1)
@@ -31,7 +31,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     if(print)
     {
       cat("L'indice di fuzzy Silhouette ha valore minore o uguale a 0\n")
-      cat("Non vi è stata una buona suddivisione dei punti.") 
+      cat("Non vi è stata una buona suddivisione dei punti\n") 
     }
     
     return(0)
@@ -50,7 +50,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     if(print)
     {
       cat("L'indice di fuzzy Silhouette ha valore maggiore o uguale a 0.5\n")
-      cat("La suddivisione dei punti è stata abbastanza buona") 
+      cat("La suddivisione dei punti è stata abbastanza buona\n") 
     }
     
     return(2)
@@ -60,7 +60,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     if(print)
     {
       cat("L'indice di fuzzy Silhouette ha valore maggiore o uguale a 0.75\n")
-      cat("La suddivisione dei punti è stata molto buona") 
+      cat("La suddivisione dei punti è stata molto buona\n") 
     }
     
     return(3)
@@ -70,7 +70,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     if(print)
     {
       cat("L'indice di fuzzy Silhouette ha valore molto vicino ad 1\n")
-      cat("La suddivisione dei punti è stata praticamente perfetta") 
+      cat("La suddivisione dei punti è stata praticamente perfetta\n") 
     }
     
     return(4)
@@ -82,7 +82,7 @@ validazione.fclust.SILF <- function(fclust.obj,print = TRUE)
     if(print)
     {
       cat("L'indice di fuzzy Silhouette ha valore uguale ad 1\n")
-      cat("La suddivisione dei punti è stata perfetta") 
+      cat("La suddivisione dei punti è stata perfetta\n") 
     }
     
     return(5)

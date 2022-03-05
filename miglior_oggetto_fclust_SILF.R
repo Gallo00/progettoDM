@@ -18,8 +18,7 @@ miglior.oggetto.fclust.SILF <- function(df,res.fkm,k){
   
   if(input_ok == 0)
   {
-    cat("L'oggetto in input non è un oggetto fclust o non è FKM\n")
-    stop()
+    stop("L'oggetto in input non è un oggetto fclust o non è FKM\n")
   }
   if(missing(k))
   {
@@ -43,8 +42,9 @@ miglior.oggetto.fclust.SILF <- function(df,res.fkm,k){
   #calcolo clustering con regolarizzazione dell'entropia
   #l'implementazione di questa funzione potrebbe generare dei NaN
   #nella matrice U se i dati non sono standardizzati
-  #Prima eseguiamo il clustering ad eseguire il clustering senza standardizzazione
-  #Se c'è errore, standardizziamo mettendo stand = 1
+  #Prima eseguiamo il clustering con standardizzazione
+  #Proviamo poi senza, in questo modo capiamo per i successivi algoritmi
+  #che usano regolarizzazione dell'entropia se usare o non usare standardizzazione
   res.fkm.ent <- FKM.ent(df,k=k,stand=1,index="SIL.F",alpha=1)
   
   usa_stand <- 0

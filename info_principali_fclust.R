@@ -5,8 +5,7 @@
 info.principali.fclust <- function(fclust.obj){
   if(class(fclust.obj) != "fclust")
   {
-    print("Non è un oggetto fclust")
-    stop()
+    stop("Non è un oggetto fclust")
   }
   
   str <- paste("Tipo fclust: ",toString(fclust.obj$call[1])," \n")
