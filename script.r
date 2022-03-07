@@ -11,8 +11,7 @@ library(factoextra)
 library(cluster)
 #Carichiamo il dataset, conservato in csv, lo "convertiamo" in dataframe
 
-dati_csv <- read.csv("wine.csv")
-#dati_csv <- read.csv("wine.csv")
+dati_csv <- read.csv("Pokemon.csv")
 df <- data.frame(dati_csv)
 rm(dati_csv)
 print(df)
@@ -92,7 +91,7 @@ if(length(variabili.molto.correlate) > 0 )
     var <- c(var,colnames(df)[variabili.molto.correlate[i]])
   }
   
-  
+  rm(i)
   #questa operazione permette di rimuovere da df le colonne
   #con i nomi trovati nel for
   df <- df[, !(names(df) %in% var)]
@@ -105,13 +104,12 @@ if(length(variabili.molto.correlate) > 0 )
 }
 
 
-rm(i)
 rm(variabili.molto.correlate)
 rm(corr)
 
 
 gc()
-res.fkm <- FKM(df,k=3,index="SIL.F",alpha=1)
+res.fkm <- FKM(df,k=2:6,index="SIL.F",alpha=1)
 #stampiamo il coeff di fuzzy Silhouette
 Fclust.index(res.fkm,index="SIL.F",alpha = 1)
 #Inseriamo k=2:6,index="SIL.F",alpha=1 anche se non è necessario
@@ -170,5 +168,5 @@ plot(miglior_clustering_SILF,pca=TRUE)
 
 source("validazione_fclust_SILF.R")
 #passando print = FALSE si disattivano le stampe(tranne il coeff. di fuzzy sil.)
-out <- validazione.fclust.SILF(miglior_clustering_SILF,print = FALSE)
+out <- validazione.fclust.SILF(miglior_clustering_SILF,print = TRUE)
 
